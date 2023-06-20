@@ -77,14 +77,14 @@ jobs:
         id: create_tag
         run: echo "TAG=$(echo v${{ steps.branch_name.outputs.BRANCH_NAME }})" >> $GITHUB_OUTPUT
 
-      - name: Publish Release
-        if: github.event.inputs.bal_central_environment == 'PROD'
-        uses: actions/create-release@v1
-        with:
-          tag_name: ${{ steps.create_tag.outputs.TAG }}
-          release_name: Release ${{ steps.create_tag.outputs.TAG }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      # - name: Publish Release
+      #   if: github.event.inputs.bal_central_environment == 'PROD'
+      #   uses: actions/create-release@v1
+      #   with:
+      #     tag_name: ${{ steps.create_tag.outputs.TAG }}
+      #     release_name: Release ${{ steps.create_tag.outputs.TAG }}
+      #     draft: false
+      #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
         
