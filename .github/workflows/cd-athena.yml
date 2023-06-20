@@ -1,3 +1,5 @@
+name: CD Athena
+
 on:
   workflow_dispatch:
     inputs:
@@ -51,13 +53,32 @@ jobs:
           BALLERINA_DEV_CENTRAL: true
           BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_DEV_ACCESS_TOKEN }}      
 
-      - name: Push to Prod Athena
+      # - name: Push to Prod Athena
+      #   if: github.event.inputs.bal_central_environment == 'PROD'
+      #   uses: ballerina-platform/ballerina-action/@2201.5.0
+      #   with:
+      #     args:
+      #       push
+      #   env:
+      #     WORKING_DIR: ./r4/athena
+      #     JAVA_HOME: /usr/lib/jvm/default-jvm
+      #     BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_PROD_ACCESS_TOKEN }}
+
+      - name: Get Branch Name
         if: github.event.inputs.bal_central_environment == 'PROD'
-        uses: ballerina-platform/ballerina-action/@2201.5.0
+        id: branch_name
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+
+      - name: Create Tag
+        if: github.event.inputs.bal_central_environment == 'PROD'
+        id: create_tag
+        run: echo "TAG=$(echo v${{ steps.branch_name.outputs.BRANCH_NAME }})" >> $GITHUB_OUTPUT
+
+      - name: Publish Release
+        if: github.event.inputs.bal_central_environment == 'PROD'
+        uses: actions/create-release@v1
         with:
-          args:
-            push
-        env:
-          WORKING_DIR: ./r4/athena
-          JAVA_HOME: /usr/lib/jvm/default-jvm
-          BALLERINA_CENTRAL_ACCESS_TOKEN: ${{ secrets.BALLERINA_CENTRAL_PROD_ACCESS_TOKEN }}
+          tag_name: ${{ steps.create_tag.outputs.TAG }}
+          release_name: Release ${{ steps.create_tag.outputs.TAG }}
+          draft: false
+          prerelease: false
