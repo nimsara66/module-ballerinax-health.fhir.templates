@@ -47,3 +47,4 @@ capabilities = [
 [ballerina.log]
 level = "DEBUG"
 
+
